@@ -5,24 +5,28 @@ import styled from 'styled-components';
 const Container = styled.div`
   max-width: 10vw;
   border: 1px solid rgba(0, 0, 0, 0.1);
+  user-select: none;
 `;
 
 const List = styled.div`
   list-style: none;
-
   font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Geneva,
     Arial, sans-serif;
 `;
 
 const ListItem = styled.div`
   cursor: pointer;
+  border-left: 2px solid transparent;
 
   &:hover {
-    background-color: gray;
+    background-color: #00000010;
+    border-left: 2px solid black;
   }
 `;
 
-const ListItemLabel = styled.span``;
+const ListItemLabel = styled.span`
+  padding-left: ${(props) => props.padding}px;
+`;
 
 const Divider = styled.hr`
   margin: 6px 0;
@@ -32,12 +36,24 @@ const Divider = styled.hr`
   flex-shrink: 0;
 `;
 
-const Collapse = styled.div(props => ({
-  display: props.collapsed ? 'none' : 'block',
+const Collapse = styled.div((props) => ({
+  display: props.collapsed ? 'none' : 'block'
 }));
 
+const BeforeIcon = styled.span`
+  font-family: 'Lucida Mono', 'Courier New', Courier, monospace;
+  font-size: 1.2rem;
+  margin-right: 0.25rem;
+`;
+
 // SidebarItem Component
-function SidebarItem({ depthStep = 10, depth = 1, expanded, item, ...rest }) {
+function SidebarItem({
+  depthStep = 10,
+  depth = 1,
+  expanded = false,
+  item,
+  ...rest
+}) {
   const [collapsed, setCollapsed] = React.useState(true);
   const { label, items, Icon, onClick: onClickProp } = item;
 
@@ -54,13 +70,20 @@ function SidebarItem({ depthStep = 10, depth = 1, expanded, item, ...rest }) {
     }
   }
 
+  let beforeContent = <BeforeIcon />;
+  if (Array.isArray(items) && items.length) {
+    beforeContent = collapsed ? (
+      <BeforeIcon>+</BeforeIcon>
+    ) : (
+      <BeforeIcon>-</BeforeIcon>
+    );
+  }
+
   return (
     <React.Fragment>
       <ListItem onClick={onClick} {...rest}>
-        <ListItemLabel
-          style={{
-            paddingLeft: depth * depthStep
-          }}>
+      <ListItemLabel content={beforeContent} padding={depth * depthStep}>
+      {beforeContent}
           {label}
         </ListItemLabel>
       </ListItem>
@@ -83,8 +106,8 @@ function SidebarItem({ depthStep = 10, depth = 1, expanded, item, ...rest }) {
             ))}
           </List>
         ) : null}
-        </Collapse>
-      </React.Fragment>
+      </Collapse>
+    </React.Fragment>
   );
 }
 

@@ -24,44 +24,89 @@ const ListItem = styled.div`
 
 const ListItemLabel = styled.span``;
 
+const Divider = styled.hr`
+  margin: 6px 0;
+
+  height: 1;
+  border: 'none';
+  flex-shrink: 0;
+`;
+
+const Collapse = styled.div(props => ({
+  display: props.collapsed ? 'none' : 'block',
+}));
+
 // SidebarItem Component
-function SidebarItem({ label, items, depthStep = 10, depth = 1, ...rest }) {
+function SidebarItem({ depthStep = 10, depth = 1, expanded, item, ...rest }) {
+  const [collapsed, setCollapsed] = React.useState(true);
+  const { label, items, Icon, onClick: onClickProp } = item;
+
+  function toggleCollapse() {
+    setCollapsed((prevValue) => !prevValue);
+  }
+
+  function onClick(e) {
+    if (Array.isArray(items)) {
+      toggleCollapse();
+    }
+    if (onClickProp) {
+      onClickProp(e, item);
+    }
+  }
+
   return (
     <React.Fragment>
-      <ListItem {...rest}>
-        <ListItemLabel style={{ paddingLeft: depth * depthStep, fontSize: `${1 - (depth / 100 )}rem`, fontWeight: 700 - (100 * depth) }}>{label}</ListItemLabel>
+      <ListItem onClick={onClick} {...rest}>
+        <ListItemLabel
+          style={{
+            paddingLeft: depth * depthStep
+          }}>
+          {label}
+        </ListItemLabel>
       </ListItem>
-      {Array.isArray(items) ? (
-        <List>
-          {items.map((subItem) => (
-            <SidebarItem
-              key={subItem.name}
-              depth={depth + 1}
-              depthStep={depthStep}
-              {...subItem}
-            />
-          ))}
-        </List>
-      ) : null}
-    </React.Fragment>
+      <Collapse collapsed={collapsed}>
+        {Array.isArray(items) ? (
+          <List>
+            {items.map((subItem, index) => (
+              <React.Fragment key={`${subItem.name}${index}`}>
+                {subItem === 'divider' ? (
+                  <Divider style={{ margin: '6px 0' }} />
+                ) : (
+                  <SidebarItem
+                    key={subItem.name}
+                    depth={depth + 1}
+                    depthStep={depthStep}
+                    item={subItem}
+                  />
+                )}
+              </React.Fragment>
+            ))}
+          </List>
+        ) : null}
+        </Collapse>
+      </React.Fragment>
   );
 }
 
 // Sidebar Component
-export default function Sidebar({ items, depthStep, depth }) {
+export default function Sidebar({ items, depthStep, depth, expanded }) {
   const [listItems, setListItems] = React.useState([]);
 
   React.useEffect(() => {
     const newItems = items.map((sidebarItem, index) => (
-      <SidebarItem
-        key={`${sidebarItem.name}${index}`}
-        depthStep={depthStep}
-        depth={depth}
-        {...sidebarItem}
-      />
+      <React.Fragment key={`${sidebarItem.name}${index}`}>
+        {sidebarItem === 'divider' ? (
+          <Divider style={{ margin: '6px 0' }} />
+        ) : (
+          <SidebarItem
+            depthStep={depthStep}
+            depth={depth}
+            expanded={expanded}
+            item={sidebarItem}
+          />
+        )}
+      </React.Fragment>
     ));
-
-    console.log(newItems);
 
     setListItems(newItems);
   }, [items, depthStep, depth]);

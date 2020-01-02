@@ -2,28 +2,33 @@ import React from 'react';
 
 import Sidebar from './recursive-sidebar';
 
-// Default Menu Items
+function onClick(e, item) {
+  window.alert(JSON.stringify(item, null, 2));
+}
+
 const MenuItems = [
   { name: 'home', label: 'Home' },
   {
     name: 'billing',
     label: 'Billing',
     items: [
-      { name: 'statements', label: 'Statements' },
-      { name: 'reports', label: 'Reports' }
+      { name: 'statements', label: 'Statements', onClick },
+      { name: 'reports', label: 'Reports', onClick }
     ]
   },
+  'divider',
   {
     name: 'settings',
     label: 'Settings',
     items: [
       { name: 'profile', label: 'Profile' },
-      { name: 'insurance', label: 'Insurance' },
+      { name: 'insurance', label: 'Insurance', onClick },
+      'divider',
       {
         name: 'notifications',
         label: 'Notifications',
         items: [
-          { name: 'email', label: 'Email' },
+          { name: 'email', label: 'Email', onClick },
           {
             name: 'desktop',
             label: 'Desktop',
